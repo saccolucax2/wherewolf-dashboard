@@ -9,8 +9,8 @@ import {
 import { useEffect, useState } from 'react';
 import './App.css';
 import { db } from './firebase';
-import { ROLE_DATA } from './roles';
 import PlayerCard from './PlayerCard';
+import { ROLE_DATA } from './roles';
 
 // ==========================================
 // COSTANTI E CONFIGURAZIONI GIOCO
@@ -759,7 +759,7 @@ export default function App() {
       )}
 
       {/* --- BOTTOM NAV BAR (MOBILE) --- */}
-      <div className="bottom-nav-bar">
+      <div className="bottom-nav-bar"> 
         <button className={`bottom-nav-item ${showFabModal ? 'active' : ''}`} onClick={() => handleToggleModal('stato')}>
           <Eye size={22} />
           <span>Stato</span>
