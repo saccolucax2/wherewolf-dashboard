@@ -608,9 +608,21 @@ export default function App() {
         <div className="form-container">
           <h3 style={{ marginTop: 0, color: '#c4c4c4', display: 'flex', alignItems: 'center', gap: '8px' }}>Aggiungi Giocatori</h3>
           <form className="add-form" onSubmit={handleMasterAdd}>
-            <input className="dark-input" type="text" placeholder="Nome giocatore" value={masterName} onChange={(e) => setMasterName(e.target.value)} required style={{ flex: 1 }}/>
-            <input className="dark-input" list="role-suggestions" placeholder={`Cerca ruolo per ${gameMode}...`} value={masterRole} onChange={(e) => setMasterRole(e.target.value)} required style={{ flex: 1 }}/>
-            <datalist id="role-suggestions">{sortedRoles.map(r => <option key={r} value={r} />)}</datalist>
+            <input className="dark-input" type="text" placeholder="Nome giocatore" value={masterName} onChange={(e) => setMasterName(e.target.value)} required style={{ flex: 1, paddingLeft: '14px' }}/>
+            <select 
+              className="dark-input" 
+              value={masterRole} 
+              onChange={(e) => setMasterRole(e.target.value)} 
+              required 
+              style={{ 
+                flex: 1, 
+                color: masterRole === "" ? "#777" : "#c4c4c4" 
+              }}
+            >  
+              <option value="" disabled>Seleziona un ruolo per {gameMode}...</option>
+              
+              {sortedRoles.map(r => <option key={r} value={r}>{r}</option>)}
+            </select>
             <button type="submit" className="btn btn-secondary" style={{ color: '#fff' }}><Plus size={16} /> Aggiungi</button>
           </form>
         </div>

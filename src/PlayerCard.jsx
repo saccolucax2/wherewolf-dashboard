@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import './PlayerCard.css';
+import { ROLE_DESCRIPTIONS } from './roles';
 
 export default function PlayerCard({
   player,
@@ -55,14 +56,13 @@ export default function PlayerCard({
       onTouchMove={onTouchMove}
       onTouchEnd={onTouchEndEvent}
     >
-      {/* LA "SCATOLA" CHE RUOTA */}
       <div className={`player-card-inner ${isFlipped ? "flipped" : ""}`}>
         
         {/* LATO A: FRONT */}
         <div className="player-card-front">
           <div className="player-card-header">
             <div>
-              <h2>{player.name}</h2>
+            <h2><strong>{player.name}</strong></h2>
             </div>
             <span className={`status-badge ${isDead ? "status-morto" : "status-vivo"}`}>
               {isDead ? "MORTO" : "VIVO"}
@@ -149,13 +149,18 @@ export default function PlayerCard({
 
           </div>
         </div>
-
+        
+        {/* LATO B: BACK */}
         <div className="player-card-back" onClick={() => setIsFlipped(false)}>
             <img 
-              src={`/cards/${player.role}.png`} 
-              alt={player.role} 
-              onError={(e) => { e.target.src = '/cards/default.png'; }}
+              src={`/cards_cropped/${player.role}.png`} 
+              alt={player.role}
+              className="back-image"
             />
+            <div className="back-overlay">
+              <h4>{player.role}</h4>
+              <p>{ROLE_DESCRIPTIONS[player.role] || "Nessuna descrizione disponibile nel compendio."}</p>
+            </div>
         </div>
 
       </div>
