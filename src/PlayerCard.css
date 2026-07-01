@@ -125,21 +125,13 @@
 
 .player-card input,
 .player-card select{
-
     width:100%;
-
     background:#111;
-
     color:white;
-
     border:1px solid #333;
-
     border-radius:8px;
-
     padding:10px;
-
     font-size:14px;
-
 }
 
 /* ===========================================
@@ -148,90 +140,56 @@
 
 .vote-card,
 .ballot-card{
-
     background:#1b1b1b;
-
     border-radius:14px;
-
     border:1px solid #2d2d2d;
-
     padding:14px;
-
 }
 
 .vote-card label,
 .ballot-card label{
-
     color:#888;
-
     font-size:13px;
-
 }
 
 .vote-controls{
-
     display:flex;
-
     justify-content:center;
-
     align-items:center;
-
     gap:18px;
-
     margin-top:12px;
-
 }
 
 .vote-number{
-
     min-width:40px;
-
     text-align:center;
-
     font-size:30px;
-
     font-weight:bold;
-
     color:#f59e0b;
-
 }
 
 .vote-number.ballot{
-
     color:#ef4444;
-
 }
 
 /* ===========================================
    BUTTONS
 =========================================== */
 
-.action-btn{
-
+.btn-action{
     width:42px;
-
     height:42px;
-
     border-radius:10px;
-
     border:none;
-
     cursor:pointer;
-
     background:#252525;
-
     color:white;
-
     transition:.2s;
-
 }
 
-.action-btn:hover{
-
+.btn-action:hover{
     background:#333;
-
     transform:scale(1.05);
-
 }
 
 /* ===========================================
@@ -239,88 +197,55 @@
 =========================================== */
 
 .player-actions{
-
     display:flex;
-
     gap:12px;
-
 }
 
 .player-actions button{
-
     flex:1;
-
     height:48px;
-
     border:none;
-
     border-radius:12px;
-
     font-size:15px;
-
     font-weight:700;
-
     display:flex;
-
     justify-content:center;
-
     align-items:center;
-
     gap:8px;
-
     cursor:pointer;
-
     transition:.2s;
-
 }
 
 .danger-btn{
-
     background:#7f1d1d;
-
     color:white;
-
 }
 
 .danger-btn:hover{
-
     background:#991b1b;
-
 }
 
 .success-btn{
-
     background:#14532d;
-
     color:#4ade80;
-
 }
 
 .success-btn:hover{
-
     background:#166534;
-
 }
 
 .danger-btn:hover{
-
     background:#991b1b;
-
 }
 
 
 .delete-btn{
-
     background:#2b2b2b;
-
     color:#ef4444;
-
 }
 
 .delete-btn:hover{
-
     background:#3a3a3a;
-
 }
 
 /* ===========================================
@@ -328,33 +253,21 @@
 =========================================== */
 
 .status-badge{
-
     padding:6px 12px;
-
     border-radius:999px;
-
     font-size:12px;
-
     font-weight:bold;
-
     text-transform:uppercase;
-
 }
 
 .status-vivo{
-
     background:#14532d;
-
     color:#4ade80;
-
 }
 
 .status-morto{
-
     background:#450a0a;
-
     color:#f87171;
-
 }
 
 /* ===========================================
@@ -362,27 +275,16 @@
 =========================================== */
 
 .player-card{
-
     animation:fadeIn .25s ease;
-
 }
 
 @keyframes fadeIn{
-
     from{
-
         opacity:0;
-
         transform:translateY(10px);
-
     }
-
     to{
-
         opacity:1;
-
         transform:none;
-
     }
-
 }

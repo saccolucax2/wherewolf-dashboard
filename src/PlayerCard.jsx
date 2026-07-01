@@ -1,11 +1,10 @@
 import {
   Heart,
-  Skull,
-  Trash2,
   Minus,
   Plus,
+  Skull,
   Sparkles,
-  Shield
+  Trash2
 } from "lucide-react";
 
 import './PlayerCard.css';
@@ -148,7 +147,7 @@ export default function PlayerCard({
           <div className="vote-controls">
 
             <button
-              className="action-btn"
+              className="btn-action"
               onClick={() =>
                 decrementVote(
                   player.id,
@@ -165,7 +164,7 @@ export default function PlayerCard({
             </span>
 
             <button
-              className="action-btn"
+              className="btn-action"
               onClick={() =>
                 incrementVote(
                   player.id,
@@ -209,7 +208,7 @@ export default function PlayerCard({
             <div className="vote-controls">
 
               <button
-                className="action-btn"
+                className="btn-action"
                 onClick={() =>
                   decrementVote(
                     player.id,
@@ -226,7 +225,7 @@ export default function PlayerCard({
               </span>
 
               <button
-                className="action-btn"
+                className="btn-action"
                 onClick={() =>
                   incrementVote(
                     player.id,
