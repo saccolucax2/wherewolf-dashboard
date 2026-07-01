@@ -66,7 +66,7 @@
     left: 0;
     height: 100%;
     transform: rotateY(180deg);
-    background: #050505;
+    background: #1c171d;
     border: 1px solid #292929;
     display: flex;
     justify-content: center;
@@ -82,20 +82,20 @@
     border-radius: 12px;
 }
 
-.player-card.alive{
-    border-left:5px solid #22c55e;
-}
+/* ===========================================
+   STATI: VIVO / MORTO / BALLOTTAGGIO
+=========================================== */
+.player-card-scene.alive .player-card-front,
+.player-card-scene.alive .player-card-back { border-left: 5px solid #22c55e; }
 
-.player-card.dead{
-    .player-card-header, .player-grid{
-        opacity:.65;
-    }
-    border-left:5px solid #dc2626;
-}
+.player-card-scene.ballot .player-card-front,
+.player-card-scene.ballot .player-card-back { border-left: 5px solid #f59e0b; }
 
-.player-card.ballot{
-    border-left:5px solid #f59e0b;
-}
+.player-card-scene.dead .player-card-front,
+.player-card-scene.dead .player-card-back { border-left: 5px solid #dc2626; }
+
+.player-card-scene.dead .player-card-header, 
+.player-card-scene.dead .player-grid { opacity: 0.65; }
 
 /* ===========================================
    HEADER
