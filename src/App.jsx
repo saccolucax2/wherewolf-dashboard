@@ -476,7 +476,7 @@ export default function App() {
         <div className="modal-overlay" onClick={() => setShowCantilenaModal(false)}>
           <div className="modal-content" style={{ maxWidth: '600px' }} onClick={e => e.stopPropagation()}>
             <h2 style={{ marginTop: 0, color: '#c084fc', display: 'flex', alignItems: 'center', gap: '8px', borderBottom: '1px solid #333', paddingBottom: '15px', marginBottom: '20px' }}>
-              <Moon size={24} /> Fase Notturna
+              <Moon size={24} /> Fase Notturna - {gameMode}
             </h2>
             <div style={{ display: 'flex', gap: '10px', marginBottom: '20px' }}>
               <button className={`btn ${cantilenaTab === 'primaNotte' ? 'btn-night' : 'btn-secondary'}`} style={{ flex: 1 }} onClick={() => setCantilenaTab('primaNotte')}>La Prima Notte</button>
