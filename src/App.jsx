@@ -608,7 +608,7 @@ export default function App() {
         <div className="form-container">
           <h3 style={{ marginTop: 0, color: '#c4c4c4', display: 'flex', alignItems: 'center', gap: '8px' }}>Aggiungi Giocatori</h3>
           <form className="add-form" onSubmit={handleMasterAdd}>
-            <input className="dark-input" type="text" placeholder="Nome giocatore" value={masterName} onChange={(e) => setMasterName(e.target.value)} required style={{ flex: 1, paddingLeft: '14px' }}/>
+            <input className="dark-input" type="text" placeholder="Nome giocatore" value={masterName} onChange={(e) => setMasterName(e.target.value)} required style={{ flex: 1, paddingLeft: '12px' }}/>
             <select 
               className="dark-input" 
               value={masterRole} 
