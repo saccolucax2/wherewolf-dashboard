@@ -27,11 +27,11 @@ const MANUALS = {
 const CANTILENA = {
   "Una Luna": {
     primaNotte: ["Veggente", "Mago", "Monaco", "Prete", "Lupi Mannari"],
-    nottiSuccessive: ["Veggente", "Medium", "Mago", "Lupi Mannari", "Guaritore"]
+    nottiSuccessive: ["Veggente", "Medium", "Mago", "Strega", "Lupi Mannari", "Guaritore"]
   },
   "Una + Due Lune": {
     primaNotte: ["Veggente", "Mago", "Criminali", "Guardie", "Monaco", "Cacciatore di Vampiri", "Prete", "Giulietta", "Angelo Custode", "L'amuleto e la spada", "Lupi del branco", "Vampiro"],
-    nottiSuccessive: ["Veggente", "Medium", "Mago", "L'amuleto e la spada", "Lupi Mannari", "Vampiro", "Guaritore"]
+    nottiSuccessive: ["Veggente", "Medium", "Mago", "Strega", "L'amuleto e la spada", "Lupi Mannari", "Vampiro", "Guaritore"]
   },
   "Darkest Night": {
     primaNotte: ["Veggente", "Mago", "Inquisizione", "Criminali", "Guardie", "Monaco", "Bracconiere", "Cacciatore di Vampiri", "Becchino", "Prete", "Giulietta", "Angelo Custode", "L'amuleto e la spada", "Lupi del branco", "Lupo Solitario", "Vampiro", "Nosferatu", "Negromante", "Posseduto", "Guaritore"],
@@ -39,7 +39,7 @@ const CANTILENA = {
   },
   "Cappuccetto Rosso": {
     primaNotte: ["Veggente", "Mago", "Criminali", "Guardie", "Monaco", "Cacciatore di Vampiri", "Prete", "Giulietta", "Angelo Custode", "L'amuleto e la spada", "Lupi del branco", "Vampiro"],
-    nottiSuccessive: ["Veggente", "Medium", "Mago", "L'amuleto e la spada", "Lupi Mannari", "Vampiro", "Guaritore"]
+    nottiSuccessive: ["Veggente", "Medium", "Mago", "Strega", "L'amuleto e la spada", "Lupi Mannari", "Vampiro", "Guaritore"]
   }
 };
 
@@ -85,28 +85,24 @@ export default function App() {
   const getExpirationDate = () => Timestamp.fromDate(new Date(Date.now() + 6 * 60 * 60 * 1000));
 
   // ==========================================
-  // EFFETTO: SPAZZINO AUTOMATICO STANZE SCADUTE
+  // EFFETTO: ELIMINA STANZA
   // ==========================================
   useEffect(() => {
     const cleanupGhostRooms = async () => {
-      if (roomCode) return; // Esegue la pulizia solo se sei nella lobby
+      if (roomCode) return;
       
       try {
         const roomsSnap = await getDocs(collection(db, 'rooms'));
         roomsSnap.forEach(async (roomDoc) => {
           const data = roomDoc.data();
           
-          // Se esiste una data di scadenza ed è passata
           if (data.expiresAt && data.expiresAt.toDate() < new Date()) {
-             // 1. Elimina tutti i giocatori della stanza
              const playersSnap = await getDocs(collection(db, 'rooms', roomDoc.id, 'players'));
              playersSnap.forEach(p => deleteDoc(doc(db, 'rooms', roomDoc.id, 'players', p.id)));
 
-             // 2. Elimina tutto lo storico
              const historySnap = await getDocs(collection(db, 'rooms', roomDoc.id, 'history'));
              historySnap.forEach(h => deleteDoc(doc(db, 'rooms', roomDoc.id, 'history', h.id)));
 
-             // 3. Elimina la stanza stessa
              await deleteDoc(doc(db, 'rooms', roomDoc.id));
              console.log(`Stanza fantasma ${roomDoc.id} eliminata.`);
           }
@@ -143,9 +139,16 @@ export default function App() {
     const playersRef = collection(db, 'rooms', roomCode, 'players');
     const unsubPlayers = onSnapshot(playersRef, (snapshot) => {
       const playersData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      
       setPlayers(playersData.sort((a, b) => {
         if (a.status === 'vivo' && b.status === 'morto') return -1;
         if (a.status === 'morto' && b.status === 'vivo') return 1;
+        
+        if (a.status === 'vivo' && b.status === 'vivo') {
+          if (a.isBallot && !b.isBallot) return -1;
+          if (!a.isBallot && b.isBallot) return 1;
+        }
+        
         return a.createdAt - b.createdAt;
       }));
     });
@@ -269,7 +272,7 @@ export default function App() {
     if (gameMode === "Una Luna") available = allRoles.filter(r => !EXP_DUE_LUNE.includes(r) && !EXP_DARKEST.includes(r) && !EXP_RED_HOOD.includes(r));
     else if (gameMode === "Una + Due Lune") available = allRoles.filter(r => !EXP_DARKEST.includes(r) && !EXP_RED_HOOD.includes(r));
     else if (gameMode === "Darkest Night") available = allRoles.filter(r => !EXP_RED_HOOD.includes(r));
-    else if (gameMode === "Cappuccetto Rosso") available = allRoles.filter(r => !EXP_DUE_LUNE.includes(r) && !EXP_DARKEST.includes(r));
+    else if (gameMode === "Cappuccetto Rosso") available = allRoles.filter(r => !EXP_DARKEST.includes(r));
     return available.sort((a, b) => a.localeCompare(b));
   };
   const sortedRoles = getFilteredRoles();
@@ -307,7 +310,7 @@ export default function App() {
   };
 
   const resetEntireGame = async () => {
-    if(window.confirm("⚠️ ATTENZIONE: Questa azione svuoterà i giocatori e lo storico per ricominciare in questa stanza. Procedere?")) {
+    if(window.confirm("ATTENZIONE: Questa azione svuoterà i giocatori e lo storico per ricominciare in questa stanza. Procedere?")) {
       try {
         const batch = writeBatch(db);
         players.forEach((p) => batch.delete(doc(db, 'rooms', roomCode, 'players', p.id)));
@@ -550,7 +553,7 @@ export default function App() {
         </div>
       </div>
 
-      {/* --- BARRA STICKY (TIMER E VOTI) SOLO IN PARTITA --- */}
+      {/* --- BARRA STICKY (TIMER E VOTI) --- */}
       {gameStarted && (
         <div className="sticky-dashboard-bar">
           <div className="timer-wrapper">
