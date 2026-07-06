@@ -170,50 +170,113 @@ export default function App() {
     const alivePlayers = players.filter(p => p.status === 'vivo');
     if (alivePlayers.length === 0) return null; 
 
-    const isCreaturaOmbra = (p) => {
+    const isShadow = (p) => {
       const originalFaction = ROLE_DATA[p.role]?.fazione;
       const currentFaction = p.fazione;
-      const isOriginallyOmbra = originalFaction === "Lupi del Branco" || originalFaction === "Vampiro" || ROLE_DATA[p.role]?.isWolf;
-      const isCurrentlyOmbra = currentFaction === "Lupi del Branco" || currentFaction === "Vampiro";
+      const shadowFactions = ["Lupi del Branco", "Vampiro", "Negromante", "Maledetto"];
+      const shadowRoles = ["Lupo Solitario", "Nosferatu", "Negromante", "Posseduto", "Megera"];
+      
+      const isOriginallyOmbra = shadowFactions.includes(originalFaction) || shadowRoles.includes(p.role) || ROLE_DATA[p.role]?.isWolf;
+      const isCurrentlyOmbra = shadowFactions.includes(currentFaction) || shadowRoles.includes(p.role);
       const isAmanteOmbra = currentFaction === "Amante" && isOriginallyOmbra;
+      
       return isCurrentlyOmbra || isAmanteOmbra;
     };
 
-    const aliveOmbra = alivePlayers.filter(isCreaturaOmbra).length;
-    const aliveVampiri = alivePlayers.filter(p => p.fazione === "Vampiro").length;
-    const aliveLupi = alivePlayers.filter(p => p.fazione === "Lupi del Branco" || ROLE_DATA[p.role]?.isWolf).length;
-    
-    if (aliveOmbra === 0) return { winner: 'Villaggio', message: 'La minaccia dell\'Ombra è stata debellata! Vittoria degli Uomini.' };
-    const aliveNonLupi = alivePlayers.length - aliveLupi;
-    if (aliveNonLupi <= aliveLupi && aliveVampiri === 0) return { winner: 'Lupi', message: 'I Lupi e i loro alleati hanno raggiunto la parità numerica. Vittoria dei Lupi!' };
-    const aliveNonVampiri = alivePlayers.length - aliveVampiri;
-    if (aliveNonVampiri <= aliveVampiri && aliveVampiri > 0) return { winner: 'Vampiro', message: 'Il Vampiro e le sue Progenie dominano la notte. Vittoria dei Vampiri!' };
-    return null;
-  };
+    const isHuman = (p) => {
+      const humanFactions = ["Villaggio", "Città", "Criminali", "Inquisizione"];
+      return humanFactions.includes(p.fazione) && !isShadow(p);
+    };
 
-  const victoryStatus = checkVictory();
+    const aliveShadows = alivePlayers.filter(isShadow);
+    const aliveHumans = alivePlayers.filter(isHuman);
 
-  useEffect(() => {
-    if (victoryStatus && victoryStatus.winner !== lastWinner) {
-      setShowVictoryModal(true);
-      setLastWinner(victoryStatus.winner);
-    } else if (!victoryStatus) {
-      setLastWinner(null);
+    // --- CONDIZIONE SPECIALE: AMANTI OMBRA ---
+    if (alivePlayers.length === 2 && alivePlayers.every(p => p.fazione === 'Amante')) {
+       return { 
+         winner: 'Amanti', 
+         message: 'Gli Amanti sono gli ultimi sopravvissuti in assoluto. L\'Amore tragico trionfa su tutto e tutti!',
+         isHumanWin: true
+       };
     }
-  }, [victoryStatus?.winner]);
 
-  useEffect(() => {
-    let interval;
-    if (isTimerRunning && timerTime > 0) {
-      interval = setInterval(() => setTimerTime((prev) => prev - 1), 1000);
-    } else if (timerTime <= 0 && isTimerRunning) setIsTimerRunning(false);
-    return () => clearInterval(interval);
-  }, [isTimerRunning, timerTime]);
+    // --- VITTORIA DELL'OMBRA ---
+    const shadowFactionsAlive = new Set();
+    aliveShadows.forEach(p => {
+      if (p.fazione === 'Lupi del Branco' || ROLE_DATA[p.role]?.isWolf) shadowFactionsAlive.add('Lupi');
+      else if (p.fazione === 'Vampiro' || p.role === 'Nosferatu') shadowFactionsAlive.add('Vampiri');
+      else if (p.role === 'Lupo Solitario') shadowFactionsAlive.add('Lupo Solitario');
+      else if (p.role === 'Negromante') shadowFactionsAlive.add('Negromante');
+      else if (p.role === 'Posseduto') shadowFactionsAlive.add('Posseduto');
+      else if (p.role === 'Megera') shadowFactionsAlive.add('Megera');
+      else shadowFactionsAlive.add('Creature Oscure');
+    });
 
-  const formatTime = (seconds) => {
-    const m = Math.floor(seconds / 60).toString().padStart(2, '0');
-    const s = (seconds % 60).toString().padStart(2, '0');
-    return `${m}:${s}`;
+    const aliveNonShadows = alivePlayers.length - aliveShadows.length;
+    
+    if (shadowFactionsAlive.size === 1 && (aliveHumans.length === 0 || aliveShadows.length >= aliveNonShadows)) {
+      const winningShadow = Array.from(shadowFactionsAlive)[0];
+      return { 
+        winner: winningShadow, 
+        message: `La fazione "${winningShadow}" è l'ultima forza oscura rimasta e domina la notte! Vittoria dell'Ombra.`,
+        isHumanWin: false 
+      };
+    }
+
+    // --- VITTORIA DEGLI UOMINI ---
+    if (aliveShadows.length === 0) {
+      let winners = [];
+      let messages = [];
+
+      const hasGuardia = alivePlayers.some(p => p.role === 'Guardia' || p.role === 'Altra Guardia');
+      const aliveCriminali = alivePlayers.filter(p => p.fazione === 'Criminali').length;
+      const isInquisizioneInGame = players.some(p => p.fazione === 'Inquisizione'); // Se l'inquisizione c'è STATA in gioco
+      const aliveMistici = alivePlayers.filter(p => ROLE_DATA[p.role]?.misticismo === 'Sì' && !isShadow(p)).length;
+      const aliveAmanti = alivePlayers.filter(p => p.fazione === 'Amante' && !isShadow(p)).length;
+
+      // 1. Criminali vs Villaggio
+      if (aliveCriminali > 0 && !hasGuardia) {
+        winners.push("Criminali");
+        messages.push("I Criminali trionfano alle spalle del Villaggio, rimasto senza Guardie!");
+      } else {
+        winners.push("Villaggio");
+        if (aliveCriminali > 0 && hasGuardia) {
+          messages.push("Il Villaggio ha epurato l'Ombra e le Guardie hanno sventato i Criminali!");
+        } else {
+          messages.push("Il Villaggio ha epurato l'Ombra!");
+        }
+      }
+
+      // 2. Città
+      if (players.some(p => p.fazione === 'Città')) {
+        winners.push("Città");
+      }
+
+      // 3. Inquisizione vs Mistici
+      if (isInquisizioneInGame) {
+        if (aliveMistici === 0) {
+           winners.push("Inquisizione");
+           messages.push("L'Inquisizione ha purificato tutti i Mistici!");
+        } else {
+           winners.push("Mistici");
+           messages.push("I Mistici sono sopravvissuti al fanatismo dell'Inquisizione!");
+        }
+      }
+
+      // 4. Amanti (Umani)
+      if (aliveAmanti > 0) {
+        winners.push("Amanti");
+        messages.push("Il vero Amore ha superato la tragedia.");
+      }
+
+      return {
+        winner: winners.join(" & "),
+        message: messages.join(" "),
+        isHumanWin: true
+      };
+    }
+
+    return null;
   };
 
   // ==========================================
@@ -499,8 +562,8 @@ export default function App() {
       {/* POP-UP VITTORIA */}
       {victoryStatus && showVictoryModal && (
         <div className="modal-overlay" onClick={() => setShowVictoryModal(false)}>
-          <div className="modal-content" style={{ border: `2px solid ${victoryStatus.winner === 'Villaggio' ? '#1e4d2b' : '#7f1d1d'}`, textAlign: 'center' }} onClick={e => e.stopPropagation()}>
-            <h1 style={{ margin: '10px 0', color: victoryStatus.winner === 'Villaggio' ? '#4ade80' : '#f87171', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', flexWrap: 'wrap', lineHeight: '1.2' }}>
+          <div className="modal-content" style={{ border: `2px solid ${victoryStatus.isHumanWin ? '#1e4d2b' : '#7f1d1d'}`, textAlign: 'center' }} onClick={e => e.stopPropagation()}>
+            <h1 style={{ margin: '10px 0', color: victoryStatus.isHumanWin ? '#4ade80' : '#f87171', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', flexWrap: 'wrap', lineHeight: '1.2' }}>
               <Trophy size={32} /> VITTORIA: {victoryStatus.winner.toUpperCase()}!
             </h1>
             <p style={{ fontSize: '18px', color: '#a3a3a3' }}>{victoryStatus.message}</p>
