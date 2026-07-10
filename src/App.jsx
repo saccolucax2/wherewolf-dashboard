@@ -277,6 +277,31 @@ export default function App() {
     }
 
     return null;
+  }
+
+  const victoryStatus = checkVictory();
+
+  useEffect(() => {
+    if (victoryStatus && victoryStatus.winner !== lastWinner) {
+      setShowVictoryModal(true);
+      setLastWinner(victoryStatus.winner);
+    } else if (!victoryStatus) {
+      setLastWinner(null);
+    }
+  }, [victoryStatus?.winner]);
+
+  useEffect(() => {
+    let interval;
+    if (isTimerRunning && timerTime > 0) {
+      interval = setInterval(() => setTimerTime((prev) => prev - 1), 1000);
+    } else if (timerTime <= 0 && isTimerRunning) setIsTimerRunning(false);
+    return () => clearInterval(interval);
+  }, [isTimerRunning, timerTime]);
+
+  const formatTime = (seconds) => {
+    const m = Math.floor(seconds / 60).toString().padStart(2, '0');
+    const s = (seconds % 60).toString().padStart(2, '0');
+    return `${m}:${s}`;
   };
 
   // ==========================================
